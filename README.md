@@ -1,2 +1,1 @@
-# terraform-opentelekomcloud-template
-_CHANGEME_
+# terraform-opentelekomcloud-security-group
