@@ -24,41 +24,35 @@ resource "opentelekomcloud_networking_secgroup_v2" "this" {
 resource "opentelekomcloud_networking_secgroup_rule_v2" "this" {
   count = var.create ? length(var.ingress_rules) : 0
 
+  direction = "ingress"
+  ethertype = "IPv4"
+
   description = lookup(
     var.ingress_rules[count.index],
     "description",
     "Ingress Rule",
   )
-  direction = "ingress"
-  ethertype = "IPv4"
 
   port_range_min = lookup(
     var.ingress_rules[count.index],
     "from_port",
-    var.ingress_rules[lookup(
-      var.ingress_rules[count.index],
-      "rule",
-      "_",
-    )][0],
+    0
   )
   port_range_max = lookup(
     var.ingress_rules[count.index],
     "to_port",
-    var.rules[lookup(
-      var.ingress_rules[count.index],
-      "rule",
-      "_",
-    )][1],
+    0
   )
-
   protocol = lookup(
     var.ingress_rules[count.index],
     "protocol",
-    var.rules[lookup(
-      var.ingress_rules[count.index],
-      "rule",
-      "_",
-    )][2],
+    "icmp"
+  )
+
+  remote_ip_prefix = lookup(
+    var.ingress_rules[count.index],
+    "remote_cidr",
+    "0.0.0.0/0"
   )
 
   security_group_id = locals.secgroup_id
@@ -70,7 +64,7 @@ resource "opentelekomcloud_networking_secgroup_rule_v2" "this" {
 resource "opentelekomcloud_networking_secgroup_rule_v2" "this" {
   count = var.create ? length(var.egress_rules) : 0
 
-  type      = "egress"
+  direction = "egress"
   ethertype = "IPv4"
 
   description = lookup(
@@ -79,33 +73,26 @@ resource "opentelekomcloud_networking_secgroup_rule_v2" "this" {
     "Egress Rule",
   )
 
-  from_port = lookup(
+  port_range_min = lookup(
     var.egress_rules[count.index],
     "from_port",
-    var.rules[lookup(
-      var.egress_rules[count.index],
-      "rule",
-      "_",
-    )][0],
+    0
   )
-  to_port = lookup(
+  port_range_max = lookup(
     var.egress_rules[count.index],
     "to_port",
-    var.rules[lookup(
-      var.egress_rules[count.index],
-      "rule",
-      "_",
-    )][1],
+    0
   )
   protocol = lookup(
     var.egress_rules[count.index],
     "protocol",
-    var.rules[lookup(
-      var.egress_rules[count.index],
-      "rule",
-      "_",
-    )][2],
+    "icmp"
+  )
+  remote_ip_prefix = lookup(
+    var.egress_rules[count.index],
+    "remote_cidr",
+    "0.0.0.0/0"
   )
 
-  security_group_id = local.this_sg_id
+  security_group_id = local.secgroup_id
 }
