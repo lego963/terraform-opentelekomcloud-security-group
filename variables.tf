@@ -23,9 +23,9 @@ variable "security_group_id" {
   default = ""
 }
 
-############################
+######################
 # Security Group Vars
-############################
+######################
 
 variable "prefix" {
   type        = string
@@ -51,6 +51,13 @@ variable "delete_default_rules" {
 ############################
 # Security Group Rules Vars
 ############################
+
+variable "create_self_ingress_rule" {
+  type        = bool
+  description = "(optional) Wheter to create default self ingress rules (allow all protocols from this group)"
+
+  default = true
+}
 
 variable "ingress_with_source_security_group_id" {
   type        = list(object({ from_port = number, to_port = number, protocol = string, source_security_group_id = string }))

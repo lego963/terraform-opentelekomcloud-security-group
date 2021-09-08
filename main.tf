@@ -17,6 +17,18 @@ resource "opentelekomcloud_networking_secgroup_v2" "this" {
   delete_default_rules = var.delete_default_rules
 }
 
+####################
+# Self Ingress rule
+####################
+resource "opentelekomcloud_networking_secgroup_rule_v2" "self_ingress_rule" {
+  count = var.create && var.create_self_ingress_rule ? 1 : 0
+
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  remote_group_id   = local.secgroup_id
+  security_group_id = local.secgroup_id
+}
+
 ################
 # Ingress rules
 ################
@@ -24,7 +36,7 @@ resource "opentelekomcloud_networking_secgroup_v2" "this" {
 resource "opentelekomcloud_networking_secgroup_rule_v2" "ingress_with_source_security_group_id" {
   count = var.create ? length(var.ingress_with_source_security_group_id) : 0
 
-  security_group_id = locals.secgroup_id
+  security_group_id = local.secgroup_id
   direction         = "ingress"
   ethertype         = "IPv4"
 
@@ -37,7 +49,7 @@ resource "opentelekomcloud_networking_secgroup_rule_v2" "ingress_with_source_sec
 resource "opentelekomcloud_networking_secgroup_rule_v2" "ingress_with_source_cidr" {
   count = var.create ? length(var.ingress_with_source_cidr) : 0
 
-  security_group_id = locals.secgroup_id
+  security_group_id = local.secgroup_id
   direction         = "ingress"
   ethertype         = "IPv4"
 
@@ -54,7 +66,7 @@ resource "opentelekomcloud_networking_secgroup_rule_v2" "ingress_with_source_cid
 resource "opentelekomcloud_networking_secgroup_rule_v2" "egress_with_source_security_group_id" {
   count = var.create ? length(var.egress_with_source_security_group_id) : 0
 
-  security_group_id = locals.secgroup_id
+  security_group_id = local.secgroup_id
   direction         = "egress"
   ethertype         = "IPv4"
 
@@ -67,7 +79,7 @@ resource "opentelekomcloud_networking_secgroup_rule_v2" "egress_with_source_secu
 resource "opentelekomcloud_networking_secgroup_rule_v2" "egress_with_source_cidr" {
   count = var.create ? length(var.egress_with_source_cidr) : 0
 
-  security_group_id = locals.secgroup_id
+  security_group_id = local.secgroup_id
   direction         = "egress"
   ethertype         = "IPv4"
 
