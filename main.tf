@@ -12,87 +12,67 @@ locals {
 resource "opentelekomcloud_networking_secgroup_v2" "this" {
   count = var.create && var.create_sg ? 1 : 0
 
-  name        = "${var.prefix}_sg"
-  description = var.description
+  name                 = "${var.prefix}_sg"
+  description          = var.description
+  delete_default_rules = var.delete_default_rules
 }
 
+################
+# Ingress rules
+################
 
-##########################
-# Ingress - Maps of rules
-##########################
-
-resource "opentelekomcloud_networking_secgroup_rule_v2" "this" {
-  count = var.create ? length(var.ingress_rules) : 0
-
-  direction = "ingress"
-  ethertype = "IPv4"
-
-  description = lookup(
-    var.ingress_rules[count.index],
-    "description",
-    "Ingress Rule",
-  )
-
-  port_range_min = lookup(
-    var.ingress_rules[count.index],
-    "from_port",
-    0
-  )
-  port_range_max = lookup(
-    var.ingress_rules[count.index],
-    "to_port",
-    0
-  )
-  protocol = lookup(
-    var.ingress_rules[count.index],
-    "protocol",
-    "icmp"
-  )
-
-  remote_ip_prefix = lookup(
-    var.ingress_rules[count.index],
-    "remote_cidr",
-    "0.0.0.0/0"
-  )
+resource "opentelekomcloud_networking_secgroup_rule_v2" "ingress_with_source_security_group_id" {
+  count = var.create ? length(var.ingress_with_source_security_group_id) : 0
 
   security_group_id = locals.secgroup_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+
+  protocol        = var.ingress_with_source_security_group_id[count.index]["protocol"]
+  port_range_min  = var.ingress_with_source_security_group_id[count.index]["from_port"]
+  port_range_max  = var.ingress_with_source_security_group_id[count.index]["to_port"]
+  remote_group_id = var.ingress_with_source_security_group_id[count.index]["source_security_group_id"]
 }
 
-#########################
-# Egress - Maps of rules
-#########################
-resource "opentelekomcloud_networking_secgroup_rule_v2" "this" {
-  count = var.create ? length(var.egress_rules) : 0
+resource "opentelekomcloud_networking_secgroup_rule_v2" "ingress_with_source_cidr" {
+  count = var.create ? length(var.ingress_with_source_cidr) : 0
 
-  direction = "egress"
-  ethertype = "IPv4"
+  security_group_id = locals.secgroup_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
 
-  description = lookup(
-    var.egress_rules[count.index],
-    "description",
-    "Egress Rule",
-  )
+  protocol         = var.ingress_with_source_cidr[count.index]["protocol"]
+  port_range_min   = var.ingress_with_source_cidr[count.index]["from_port"]
+  port_range_max   = var.ingress_with_source_cidr[count.index]["to_port"]
+  remote_ip_prefix = var.ingress_with_source_cidr[count.index]["source_cidr"]
+}
 
-  port_range_min = lookup(
-    var.egress_rules[count.index],
-    "from_port",
-    0
-  )
-  port_range_max = lookup(
-    var.egress_rules[count.index],
-    "to_port",
-    0
-  )
-  protocol = lookup(
-    var.egress_rules[count.index],
-    "protocol",
-    "icmp"
-  )
-  remote_ip_prefix = lookup(
-    var.egress_rules[count.index],
-    "remote_cidr",
-    "0.0.0.0/0"
-  )
+###############
+# Egress rules
+###############
 
-  security_group_id = local.secgroup_id
+resource "opentelekomcloud_networking_secgroup_rule_v2" "egress_with_source_security_group_id" {
+  count = var.create ? length(var.egress_with_source_security_group_id) : 0
+
+  security_group_id = locals.secgroup_id
+  direction         = "egress"
+  ethertype         = "IPv4"
+
+  protocol        = var.egress_with_source_security_group_id[count.index]["protocol"]
+  port_range_min  = var.egress_with_source_security_group_id[count.index]["from_port"]
+  port_range_max  = var.egress_with_source_security_group_id[count.index]["to_port"]
+  remote_group_id = var.egress_with_source_security_group_id[count.index]["destination_security_group_id"]
+}
+
+resource "opentelekomcloud_networking_secgroup_rule_v2" "egress_with_source_cidr" {
+  count = var.create ? length(var.egress_with_source_cidr) : 0
+
+  security_group_id = locals.secgroup_id
+  direction         = "egress"
+  ethertype         = "IPv4"
+
+  protocol         = var.egress_with_source_cidr[count.index]["protocol"]
+  port_range_min   = var.egress_with_source_cidr[count.index]["from_port"]
+  port_range_max   = var.egress_with_source_cidr[count.index]["to_port"]
+  remote_ip_prefix = var.egress_with_source_cidr[count.index]["destination_cidr"]
 }

@@ -11,16 +11,9 @@ variable "create" {
 
 variable "create_sg" {
   type        = bool
-  description = "(optional )Whether to create Security Group"
+  description = "(optional) Whether to create Security Group"
 
   default = true
-}
-
-variable "prefix" {
-  type        = string
-  description = "(optional) prefix for Security Group"
-
-  default = "default"
 }
 
 variable "security_group_id" {
@@ -31,30 +24,58 @@ variable "security_group_id" {
 }
 
 ############################
+# Security Group Vars
+############################
+
+variable "prefix" {
+  type        = string
+  description = "(optional) Prefix for Security Group"
+
+  default = "default"
+}
+
+variable "description" {
+  type        = string
+  description = "(optional) The Security Group description"
+
+  default = ""
+}
+
+variable "delete_default_rules" {
+  type        = bool
+  description = "(optional) Wheter to delete default rules"
+
+  default = false
+}
+
+############################
 # Security Group Rules Vars
 ############################
 
-variable "ingress_rules" {
-  type        = list(object({ from_port = number, to_port = number, description = string, protocol = string, remote_cidr = string }))
-  description = "(optional) The Ingress Rules for Security Group"
+variable "ingress_with_source_security_group_id" {
+  type        = list(object({ from_port = number, to_port = number, protocol = string, source_security_group_id = string }))
+  description = "(optional) List of ingress rules to create where a security group is remote"
 
-  default = [
-    {
-      from_port = 22
-      protocol  = "tcp"
-      to_port   = 22
-    },
-    {
-      from_port = 0
-      protocol  = "icmp"
-      to_port   = 0
-    }
-  ]
+  default = []
 }
 
-variable "egress_rules" {
-  type        = list(object({ from_port = number, to_port = number, description = string, protocol = string, remote_cidr = string }))
-  description = "(optional) The Egress Rules for Security Group"
+variable "ingress_with_source_cidr" {
+  type        = list(object({ from_port = number, to_port = number, protocol = string, source_cidr = string }))
+  description = "(optional) List of ingress rules to create where a CIDR is remote"
+
+  default = []
+}
+
+variable "egress_with_source_security_group_id" {
+  type        = list(object({ from_port = number, to_port = number, protocol = string, destination_security_group_id = string }))
+  description = "(optional) List of egress rules to create where a security group is remote"
+
+  default = []
+}
+
+variable "egress_with_source_cidr" {
+  type        = list(object({ from_port = number, to_port = number, protocol = string, destination_cidr = string }))
+  description = "(optional) List of egress rules to create where a CIDR is remote"
 
   default = []
 }
