@@ -1,6 +1,6 @@
 # Configure the OpenTelekomCloud Provider
 provider "opentelekomcloud" {
-  cloud = "tf"
+  cloud = "otc"
 }
 
 module "ssh_sg" {
